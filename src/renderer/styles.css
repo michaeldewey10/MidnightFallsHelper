@@ -205,33 +205,31 @@ h1 {
 
 .arena-slot {
   position: absolute;
-  width: 82px;
-  aspect-ratio: 1;
+  width: 62px;
+  min-height: 62px;
   transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
   border-radius: 8px;
-  border: 1px solid #9a9a9a;
-  background: #2d2d2d;
-}
-
-.arena-slot.filled {
-  border-color: #e0e0e0;
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.18);
-}
-
-.arena-slot strong {
-  position: absolute;
-  right: 6px;
-  bottom: 4px;
-  color: var(--muted);
-  font-size: 12px;
+  border: 0;
+  background: transparent;
 }
 
 .slot-number {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 28px;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 30px;
   font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.75);
+}
+
+.arena-slot .symbol-icon {
+  width: 34px;
+  height: 34px;
+  background: transparent;
 }
 
 .sequence-strip {
@@ -471,7 +469,7 @@ kbd {
   }
 
   .arena-slot {
-    width: 70px;
+    width: 58px;
   }
 
   .window-actions {

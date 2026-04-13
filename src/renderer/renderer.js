@@ -71,7 +71,7 @@ function renderArena() {
     slot.style.top = position.top;
     slot.setAttribute('aria-label', symbolId ? `Order ${index + 1}: ${symbolById(symbolId)?.name || symbolId}` : `Order ${index + 1} empty`);
     slot.innerHTML = symbolId
-      ? `${renderSymbolIcon(symbolId)}<strong>${index + 1}</strong>`
+      ? `<span class="slot-number">${index + 1}</span>${renderSymbolIcon(symbolId)}`
       : `<span class="slot-number">${index + 1}</span>`;
 
     elements.arenaSlots.appendChild(slot);
