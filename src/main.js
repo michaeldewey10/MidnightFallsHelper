@@ -32,6 +32,8 @@ let wsClient;
 let settingsPath;
 let state = { ...defaultState };
 
+app.commandLine.appendSwitch('disable-gpu');
+
 function writeCrashLog(error) {
   try {
     const message = error && error.stack ? error.stack : String(error);
@@ -55,12 +57,12 @@ function createWindow() {
     y: 32,
     minWidth: 420,
     minHeight: 620,
-    transparent: true,
+    transparent: false,
     frame: false,
     resizable: true,
     hasShadow: false,
     alwaysOnTop: true,
-    backgroundColor: '#00000000',
+    backgroundColor: '#151515',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

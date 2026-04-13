@@ -1,4 +1,5 @@
 const SLOT_ANGLES = [36, 108, 180, 252, 324];
+let detailsHidden = false;
 let appState = {
   role: 'solo',
   sequence: [],
@@ -27,6 +28,8 @@ const elements = {
   errorText: document.getElementById('errorText'),
   roomText: document.getElementById('roomText'),
   clickThroughButton: document.getElementById('clickThroughButton'),
+  detailsPanel: document.getElementById('detailsPanel'),
+  detailsToggleButton: document.getElementById('detailsToggleButton'),
   quitButton: document.getElementById('quitButton')
 };
 
@@ -137,11 +140,18 @@ function renderSync() {
   }
 }
 
+function renderDetailsToggle() {
+  elements.detailsPanel.hidden = detailsHidden;
+  elements.detailsToggleButton.textContent = detailsHidden ? 'Show' : 'Hide';
+  elements.detailsToggleButton.setAttribute('aria-expanded', String(!detailsHidden));
+}
+
 function render() {
   renderArena();
   renderSequence();
   renderControls();
   renderSync();
+  renderDetailsToggle();
 }
 
 function setState(nextState) {
@@ -161,6 +171,10 @@ elements.createRoomButton.addEventListener('click', () => window.midnightFalls.c
 elements.joinRoomButton.addEventListener('click', () => window.midnightFalls.joinRoom(elements.roomCodeInput.value));
 elements.disconnectButton.addEventListener('click', () => window.midnightFalls.disconnect());
 elements.clickThroughButton.addEventListener('click', () => window.midnightFalls.toggleClickThrough());
+elements.detailsToggleButton.addEventListener('click', () => {
+  detailsHidden = !detailsHidden;
+  renderDetailsToggle();
+});
 elements.quitButton.addEventListener('click', () => window.midnightFalls.quit());
 elements.roomCodeInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
