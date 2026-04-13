@@ -26,10 +26,8 @@
           <div class="tank-marker">
             <span>Tank</span>
           </div>
-          <div class="laser-arm" aria-hidden="true"></div>
           <div class="boss-core" aria-hidden="true"></div>
           <div id="arenaSlots" class="arena-slots"></div>
-          <div class="clockwise-label">Clockwise</div>
         </div>
       </section>
 
@@ -66,11 +64,13 @@
         </section>
       </div>
 
-      <footer class="hotkey-help">
-        <span>Runes: Ctrl/Cmd + Shift + 1-5</span>
-        <span>Reset: Ctrl/Cmd + Shift + R</span>
-        <span>Click-through: Ctrl/Cmd + Shift + Space</span>
-      </footer>
+      <div id="hotkeysPanel" class="hotkeys-panel" hidden>
+        <footer class="hotkey-help">
+          <span>Runes: Ctrl/Cmd + Shift + 1-5</span>
+          <span>Reset: Ctrl/Cmd + Shift + R</span>
+          <span>Click-through: Ctrl/Cmd + Shift + Space</span>
+        </footer>
+      </div>
     </main>
     <script src="./renderer.js"></script>
   </body>

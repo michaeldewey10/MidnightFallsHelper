@@ -30,6 +30,7 @@ const elements = {
   clickThroughButton: document.getElementById('clickThroughButton'),
   detailsPanel: document.getElementById('detailsPanel'),
   detailsToggleButton: document.getElementById('detailsToggleButton'),
+  hotkeysPanel: document.getElementById('hotkeysPanel'),
   quitButton: document.getElementById('quitButton')
 };
 
@@ -142,6 +143,11 @@ function renderSync() {
 
 function renderDetailsToggle() {
   elements.detailsPanel.hidden = detailsHidden;
+  if (detailsHidden) {
+    elements.hotkeysPanel.setAttribute('hidden', '');
+  } else {
+    elements.hotkeysPanel.removeAttribute('hidden');
+  }
   elements.detailsToggleButton.textContent = detailsHidden ? 'Show' : 'Hide';
   elements.detailsToggleButton.setAttribute('aria-expanded', String(!detailsHidden));
 }

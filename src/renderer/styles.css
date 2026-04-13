@@ -145,12 +145,12 @@ h1 {
 .arena-panel {
   display: grid;
   place-items: center;
-  min-height: 300px;
+  min-height: 240px;
 }
 
 .arena {
   position: relative;
-  width: min(100%, 430px);
+  width: min(100%, 320px);
   aspect-ratio: 1;
   border: 2px solid #858585;
   border-radius: 50%;
@@ -173,20 +173,6 @@ h1 {
   font-weight: 900;
   background: var(--green);
   border: 1px solid rgba(0, 0, 0, 0.28);
-}
-
-.laser-arm {
-  position: absolute;
-  left: calc(50% - 2px);
-  top: 50%;
-  z-index: 1;
-  width: 4px;
-  height: 46%;
-  transform-origin: 50% 0;
-  transform: rotate(0deg);
-  background: linear-gradient(180deg, rgba(255, 82, 99, 0.95), rgba(255, 82, 99, 0));
-  box-shadow: 0 0 18px rgba(255, 82, 99, 0.9);
-  animation: laserSweep 5.5s linear infinite;
 }
 
 .boss-core {
@@ -240,19 +226,6 @@ h1 {
   font-weight: 900;
 }
 
-.clockwise-label {
-  position: absolute;
-  right: 28px;
-  top: 48px;
-  z-index: 6;
-  padding: 4px 8px;
-  border-radius: 8px;
-  color: #111;
-  background: var(--gold);
-  font-size: 12px;
-  font-weight: 900;
-}
-
 .sequence-strip {
   display: flex;
   align-items: center;
@@ -270,6 +243,10 @@ h1 {
 }
 
 .details-panel[hidden] {
+  display: none;
+}
+
+.hotkeys-panel[hidden] {
   display: none;
 }
 
@@ -468,23 +445,13 @@ kbd {
   font-weight: 750;
 }
 
-@keyframes laserSweep {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (max-width: 480px) {
   .overlay-shell {
     padding: 8px;
   }
 
   .arena-panel {
-    min-height: 260px;
+    min-height: 220px;
   }
 
   .symbol-grid {
