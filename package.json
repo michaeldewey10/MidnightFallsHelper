@@ -11,7 +11,7 @@
     "dev": "electron . --dev",
     "relay": "node server/server.js",
     "build": "electron-builder",
-    "build:win": "electron-builder --win nsis",
+    "build:win": "set CSC_IDENTITY_AUTO_DISCOVERY=false&& electron-builder --win nsis",
     "build:mac": "electron-builder --mac dmg zip"
   },
   "dependencies": {
@@ -33,6 +33,8 @@
       "output": "dist"
     },
     "win": {
+      "signAndEditExecutable": false,
+      "signDlls": false,
       "target": [
         {
           "target": "nsis",
