@@ -17,19 +17,17 @@ const elements = {
   sequenceCount: document.getElementById('sequenceCount'),
   sequencePills: document.getElementById('sequencePills'),
   symbolButtons: document.getElementById('symbolButtons'),
-  undoButton: document.getElementById('undoButton'),
+
   resetButton: document.getElementById('resetButton'),
   createRoomButton: document.getElementById('createRoomButton'),
   joinRoomButton: document.getElementById('joinRoomButton'),
   disconnectButton: document.getElementById('disconnectButton'),
   roomCodeInput: document.getElementById('roomCodeInput'),
-  roleBadge: document.getElementById('roleBadge'),
-  statusText: document.getElementById('statusText'),
   errorText: document.getElementById('errorText'),
   roomText: document.getElementById('roomText'),
-  clickThroughButton: document.getElementById('clickThroughButton'),
   detailsPanel: document.getElementById('detailsPanel'),
-  detailsToggleButton: document.getElementById('detailsToggleButton'),
+  minimizeButton: document.getElementById('minimizeButton'),
+  maximizeButton: document.getElementById('maximizeButton'),
   hotkeysPanel: document.getElementById('hotkeysPanel'),
   quitButton: document.getElementById('quitButton')
 };
@@ -71,7 +69,7 @@ function renderArena() {
     slot.style.top = position.top;
     slot.setAttribute('aria-label', symbolId ? `Order ${index + 1}: ${symbolById(symbolId)?.name || symbolId}` : `Order ${index + 1} empty`);
     slot.innerHTML = symbolId
-      ? `<span class="slot-number">${index + 1}</span>${renderSymbolIcon(symbolId)}`
+      ? renderSymbolIcon(symbolId)
       : `<span class="slot-number">${index + 1}</span>`;
 
     elements.arenaSlots.appendChild(slot);
@@ -94,8 +92,9 @@ function renderSequence() {
 }
 
 function renderControls() {
-  const leaderCanEdit = appState.role !== 'client';
   const sequenceFull = appState.sequence.length >= appState.maxSequence;
+  const busyConnecting = appState.status === 'Connecting to relay';
+  const roomLocked = busyConnecting || appState.connected;
 
   elements.symbolButtons.innerHTML = '';
 
@@ -103,7 +102,7 @@ function renderControls() {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `symbol-button symbol-${symbol.id}`;
-    button.disabled = !leaderCanEdit || sequenceFull;
+    button.disabled = sequenceFull;
     button.innerHTML = `
       ${renderSymbolIcon(symbol.id, symbol.label)}
       <span class="symbol-name">${symbol.name}</span>
@@ -113,27 +112,30 @@ function renderControls() {
     elements.symbolButtons.appendChild(button);
   });
 
-  elements.undoButton.disabled = !leaderCanEdit || appState.sequence.length === 0;
-  elements.resetButton.disabled = !leaderCanEdit || appState.sequence.length === 0;
-  elements.createRoomButton.disabled = appState.role === 'leader' && appState.connected;
-  elements.disconnectButton.disabled = appState.role === 'solo' && !appState.connected;
+  elements.resetButton.classList.add('symbol-button', 'danger-button', 'reset-button');
+  elements.resetButton.textContent = 'Reset';
+  elements.resetButton.disabled = appState.sequence.length === 0;
+  elements.symbolButtons.appendChild(elements.resetButton);
+  elements.createRoomButton.disabled = roomLocked;
+  elements.joinRoomButton.disabled = roomLocked;
+  elements.disconnectButton.disabled = !appState.connected;
 }
 
 function renderSync() {
-  const role = appState.role === 'leader' ? 'Leader' : appState.role === 'client' ? 'Client' : 'Solo';
-  elements.roleBadge.textContent = role;
-  elements.roleBadge.dataset.role = appState.role;
-  elements.statusText.textContent = appState.status || 'Ready';
   elements.errorText.textContent = appState.error || '';
   elements.errorText.hidden = !appState.error;
-  elements.clickThroughButton.textContent = appState.clickThrough ? 'Pass' : 'Click';
-  elements.clickThroughButton.title = appState.clickThrough ? 'Click-through is on. Use the hotkey to turn it off.' : 'Mouse input is enabled.';
 
-  if (appState.roomCode && document.activeElement !== elements.roomCodeInput) {
+  const connecting = appState.status === 'Connecting to relay';
+  elements.roomCodeInput.readOnly = connecting;
+  elements.joinRoomButton.disabled = connecting || appState.connected;
+
+  if (connecting && document.activeElement !== elements.roomCodeInput) {
+    elements.roomCodeInput.value = 'Connecting...';
+  } else if (appState.roomCode && document.activeElement !== elements.roomCodeInput) {
     elements.roomCodeInput.value = appState.roomCode;
   }
 
-  if (appState.roomCode) {
+  if (appState.connected && appState.roomCode) {
     const clientLabel = appState.clients === 1 ? 'client' : 'clients';
     elements.roomText.textContent = `Room ${appState.roomCode} (${appState.clients} ${clientLabel})`;
   } else {
@@ -149,8 +151,6 @@ function renderDetailsToggle() {
   } else {
     elements.hotkeysPanel.removeAttribute('hidden');
   }
-  elements.detailsToggleButton.textContent = detailsHidden ? 'Show' : 'Hide';
-  elements.detailsToggleButton.setAttribute('aria-expanded', String(!detailsHidden));
 }
 
 function render() {
@@ -172,17 +172,20 @@ async function initialize() {
   setState(initialState);
 }
 
-elements.undoButton.addEventListener('click', () => window.midnightFalls.undo());
 elements.resetButton.addEventListener('click', () => window.midnightFalls.reset());
+elements.minimizeButton.addEventListener('click', () => {
+  detailsHidden = true;
+  renderDetailsToggle();
+  window.midnightFalls.setCollapsed(true);
+});
+elements.maximizeButton.addEventListener('click', () => {
+  detailsHidden = false;
+  renderDetailsToggle();
+  window.midnightFalls.setCollapsed(false);
+});
 elements.createRoomButton.addEventListener('click', () => window.midnightFalls.createRoom());
 elements.joinRoomButton.addEventListener('click', () => window.midnightFalls.joinRoom(elements.roomCodeInput.value));
 elements.disconnectButton.addEventListener('click', () => window.midnightFalls.disconnect());
-elements.clickThroughButton.addEventListener('click', () => window.midnightFalls.toggleClickThrough());
-elements.detailsToggleButton.addEventListener('click', () => {
-  detailsHidden = !detailsHidden;
-  renderDetailsToggle();
-  window.midnightFalls.setCollapsed(detailsHidden);
-});
 elements.quitButton.addEventListener('click', () => window.midnightFalls.quit());
 elements.roomCodeInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {

@@ -99,7 +99,6 @@ function createRoom(socket) {
   const code = roomCode();
   const room = {
     code,
-    leaderToken: crypto.randomBytes(18).toString('base64url'),
     sequence: [],
     revision: 0,
     clients: new Set(),
@@ -112,7 +111,6 @@ function createRoom(socket) {
     type: 'room-created',
     payload: {
       roomCode: code,
-      leaderToken: room.leaderToken,
       relayRole: 'leader'
     }
   });
@@ -143,8 +141,8 @@ function updateRoom(socket, payload) {
   const code = String(payload.roomCode || socket.roomCode || '').trim().toUpperCase();
   const room = rooms.get(code);
 
-  if (!room || payload.leaderToken !== room.leaderToken) {
-    send(socket, { type: 'error', error: 'Leader token rejected.' });
+  if (!room || !socket.roomCode || socket.roomCode !== code) {
+    send(socket, { type: 'error', error: 'Room membership rejected.' });
     return;
   }
 

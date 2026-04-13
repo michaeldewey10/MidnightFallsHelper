@@ -22,9 +22,9 @@ const defaultState = {
   connected: false,
   relayUrl: RELAY_URL,
   roomCode: '',
-  leaderToken: '',
   clients: 0,
   clickThrough: false,
+  windowBounds: null,
   status: 'Ready',
   error: ''
 };
@@ -33,6 +33,8 @@ let mainWindow;
 let wsClient;
 let settingsPath;
 let state = { ...defaultState };
+let autoResetTimer = null;
+let autoResetArmed = false;
 
 app.commandLine.appendSwitch('disable-gpu');
 
@@ -50,21 +52,38 @@ process.on('unhandledRejection', writeCrashLog);
 
 function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
-  const { width } = primaryDisplay.workAreaSize;
+  const { width, height } = primaryDisplay.workAreaSize;
+  const savedBounds = state.windowBounds;
+  const hasSavedBounds = savedBounds
+    && Number.isFinite(savedBounds.x)
+    && Number.isFinite(savedBounds.y)
+    && Number.isFinite(savedBounds.width)
+    && Number.isFinite(savedBounds.height);
+  const initialBounds = hasSavedBounds
+    ? {
+        x: savedBounds.x,
+        y: savedBounds.y,
+        width: savedBounds.width,
+        height: savedBounds.height
+      }
+    : {
+        x: Math.max(0, Math.round((width - EXPANDED_SIZE.width) / 2)),
+        y: Math.max(0, Math.round((height - EXPANDED_SIZE.height) / 2)),
+        width: EXPANDED_SIZE.width,
+        height: EXPANDED_SIZE.height
+      };
 
   mainWindow = new BrowserWindow({
-    width: EXPANDED_SIZE.width,
-    height: EXPANDED_SIZE.height,
-    x: Math.max(0, width - 600),
-    y: 32,
+    ...initialBounds,
     minWidth: 260,
     minHeight: 260,
-    transparent: false,
+    transparent: true,
     frame: false,
     resizable: true,
     hasShadow: false,
     alwaysOnTop: true,
-    backgroundColor: '#151515',
+    backgroundColor: '#00000000',
+    icon: path.join(__dirname, 'renderer', 'assets', 'app-icon.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -75,6 +94,8 @@ function createWindow() {
   mainWindow.setAlwaysOnTop(true, 'screen-saver');
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   mainWindow.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  mainWindow.on('move', persistWindowBounds);
+  mainWindow.on('resize', persistWindowBounds);
   applyClickThrough();
 }
 
@@ -87,7 +108,8 @@ function loadSettings() {
     state = {
       ...state,
       roomCode: typeof saved.roomCode === 'string' ? saved.roomCode : '',
-      clickThrough: Boolean(saved.clickThrough)
+      clickThrough: Boolean(saved.clickThrough),
+      windowBounds: saved.windowBounds && typeof saved.windowBounds === 'object' ? saved.windowBounds : null
     };
   } catch {
     // First launch or invalid settings: defaults are fine.
@@ -101,11 +123,27 @@ function saveSettings() {
 
   const payload = {
     roomCode: state.roomCode,
-    clickThrough: state.clickThrough
+    clickThrough: state.clickThrough,
+    windowBounds: state.windowBounds
   };
 
   fs.mkdirSync(path.dirname(settingsPath), { recursive: true });
   fs.writeFileSync(settingsPath, `${JSON.stringify(payload, null, 2)}\n`);
+}
+
+function persistWindowBounds() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  const bounds = mainWindow.getBounds();
+  state.windowBounds = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height
+  };
+  saveSettings();
 }
 
 function rendererState() {
@@ -134,8 +172,40 @@ function setStatus(status, error = '') {
   sendToRenderer();
 }
 
+function isConnecting() {
+  return state.status === 'Connecting to relay';
+}
+
+function clearAutoResetTimer() {
+  if (autoResetTimer) {
+    clearTimeout(autoResetTimer);
+    autoResetTimer = null;
+  }
+
+  autoResetArmed = false;
+}
+
+function syncAutoResetTimer() {
+  if (state.sequence.length < MAX_SEQUENCE) {
+    clearAutoResetTimer();
+    return;
+  }
+
+  if (autoResetArmed) {
+    return;
+  }
+
+  autoResetArmed = true;
+  autoResetTimer = setTimeout(() => {
+    autoResetTimer = null;
+    autoResetArmed = false;
+    setSequence([]);
+    setStatus('Sequence auto-reset');
+  }, 30000);
+}
+
 function broadcastSharedState() {
-  if (state.role !== 'leader' || !wsClient || wsClient.readyState !== WebSocket.OPEN || !state.roomCode || !state.leaderToken) {
+  if (!wsClient || wsClient.readyState !== WebSocket.OPEN || !state.roomCode) {
     return;
   }
 
@@ -143,7 +213,6 @@ function broadcastSharedState() {
     type: 'leader-update',
     payload: {
       roomCode: state.roomCode,
-      leaderToken: state.leaderToken,
       sequence: state.sequence
     }
   }));
@@ -152,16 +221,12 @@ function broadcastSharedState() {
 function setSequence(sequence) {
   state.sequence = sequence.slice(0, MAX_SEQUENCE);
   state.revision += 1;
+  syncAutoResetTimer();
   broadcastSharedState();
   sendToRenderer();
 }
 
 function addSymbol(symbolId) {
-  if (state.role === 'client') {
-    setStatus('Client mode is read-only', 'Only the leader can enter the order.');
-    return false;
-  }
-
   if (!SYMBOLS.some((symbol) => symbol.id === symbolId)) {
     return false;
   }
@@ -177,22 +242,12 @@ function addSymbol(symbolId) {
 }
 
 function resetSequence() {
-  if (state.role === 'client') {
-    setStatus('Client mode is read-only', 'Only the leader can reset the order.');
-    return false;
-  }
-
   setSequence([]);
   setStatus('Sequence reset');
   return true;
 }
 
 function undoSymbol() {
-  if (state.role === 'client') {
-    setStatus('Client mode is read-only', 'Only the leader can edit the order.');
-    return false;
-  }
-
   if (state.sequence.length === 0) {
     setStatus('No runes to undo');
     return false;
@@ -226,6 +281,7 @@ function applyRelayState(payload) {
   state.revision = Number(payload.revision) || state.revision;
   state.roomCode = typeof payload.roomCode === 'string' ? payload.roomCode : state.roomCode;
   state.clients = Number(payload.clients) || 0;
+  syncAutoResetTimer();
   sendToRenderer();
 }
 
@@ -235,12 +291,13 @@ function connectRelay(onOpen) {
   state = {
     ...state,
     connected: false,
+    status: 'Connecting to relay',
     relayUrl: RELAY_URL,
     clients: 0,
     error: ''
   };
   saveSettings();
-  setStatus('Connecting to relay');
+  sendToRenderer();
 
   return new Promise((resolve) => {
     let settled = false;
@@ -267,7 +324,6 @@ function connectRelay(onOpen) {
         if (message.type === 'room-created' && message.payload) {
           state.role = 'leader';
           state.roomCode = message.payload.roomCode || '';
-          state.leaderToken = message.payload.leaderToken || '';
           state.connected = true;
           saveSettings();
           setStatus(`Room ${state.roomCode} created`);
@@ -278,7 +334,6 @@ function connectRelay(onOpen) {
         if (message.type === 'room-joined' && message.payload) {
           state.role = 'client';
           state.roomCode = message.payload.roomCode || state.roomCode;
-          state.leaderToken = '';
           state.connected = true;
           saveSettings();
           setStatus(`Joined room ${state.roomCode}`);
@@ -300,7 +355,6 @@ function connectRelay(onOpen) {
         if (message.type === 'error') {
           state.role = 'solo';
           state.connected = false;
-          state.leaderToken = '';
           state.clients = 0;
           setStatus('Relay error', message.error || 'Unknown relay error.');
           closeClient();
@@ -315,7 +369,7 @@ function connectRelay(onOpen) {
       if (wsClient === socket) {
         const error = state.error;
         state.connected = false;
-        state.leaderToken = '';
+        state.status = error ? 'Connection failed' : 'Disconnected from relay';
         setStatus(error ? 'Connection failed' : 'Disconnected from relay', error);
         finish();
       }
@@ -323,7 +377,7 @@ function connectRelay(onOpen) {
 
     socket.on('error', (error) => {
       state.connected = false;
-      state.leaderToken = '';
+      state.status = 'Connection failed';
       setStatus('Connection failed', error.message);
       finish();
     });
@@ -335,7 +389,6 @@ function createRoom() {
     ...state,
     role: 'leader',
     roomCode: '',
-    leaderToken: '',
     clients: 0
   };
 
@@ -353,7 +406,6 @@ function joinRoom(roomCode) {
       role: 'solo',
       connected: false,
       roomCode: '',
-      leaderToken: '',
       clients: 0,
       error: 'Enter a room code first.'
     };
@@ -365,7 +417,6 @@ function joinRoom(roomCode) {
     ...state,
     role: 'client',
     roomCode: normalizedRoomCode,
-    leaderToken: '',
     clients: 0
   };
 
@@ -386,7 +437,6 @@ function disconnectSession() {
     role: 'solo',
     connected: false,
     roomCode: '',
-    leaderToken: '',
     clients: 0
   };
   setStatus('Disconnected');
@@ -452,6 +502,7 @@ app.whenReady().then(() => {
 
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
+  clearAutoResetTimer();
   closeClient();
 });
 

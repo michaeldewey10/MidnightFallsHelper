@@ -15,16 +15,16 @@
           <h1>Midnight Falls Helper</h1>
         </div>
         <div class="window-actions">
-          <button id="detailsToggleButton" class="ghost-button" type="button" aria-expanded="true">Hide</button>
-          <button id="clickThroughButton" class="ghost-button" type="button">Click</button>
-          <button id="quitButton" class="ghost-button" type="button">Exit</button>
+          <button id="minimizeButton" class="window-button" type="button" aria-label="Minimize" title="Minimize">&minus;</button>
+          <button id="maximizeButton" class="window-button" type="button" aria-label="Maximize" title="Maximize"><span class="window-square" aria-hidden="true"></span></button>
+          <button id="quitButton" class="window-button close-button" type="button" aria-label="Exit" title="Exit">&#10005;</button>
         </div>
       </header>
 
       <section class="arena-panel" aria-label="Death's Dirge order">
         <div class="arena" id="arena">
           <div class="tank-marker">
-            <span>Tank</span>
+            <img src="./assets/tank.png" alt="Tank">
           </div>
           <div class="boss-core" aria-hidden="true"></div>
           <div id="arenaSlots" class="arena-slots"></div>
@@ -39,24 +39,14 @@
 
         <section class="controls" aria-label="Leader input controls">
           <div id="symbolButtons" class="symbol-grid"></div>
-          <div class="edit-row">
-            <button id="undoButton" class="secondary-button" type="button">Undo</button>
-            <button id="resetButton" class="danger-button" type="button">Reset</button>
-          </div>
+          <button id="resetButton" class="symbol-button danger-button reset-button" type="button">Reset</button>
         </section>
 
         <section class="sync-panel" aria-label="Sync controls">
-          <div class="sync-status">
-            <span id="roleBadge" class="role-badge">Solo</span>
-            <span id="statusText">Ready</span>
-          </div>
           <p id="errorText" class="error-text"></p>
           <div class="sync-actions">
             <button id="createRoomButton" class="primary-button" type="button">Create Room</button>
             <button id="disconnectButton" class="secondary-button" type="button">Disconnect</button>
-          </div>
-          <label class="join-label" for="roomCodeInput">Room Code</label>
-          <div class="join-row">
             <input id="roomCodeInput" type="text" autocomplete="off" spellcheck="false" maxlength="8" placeholder="ABCD">
             <button id="joinRoomButton" class="primary-button" type="button">Join Room</button>
           </div>
