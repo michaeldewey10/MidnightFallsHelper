@@ -180,6 +180,7 @@ elements.clickThroughButton.addEventListener('click', () => window.midnightFalls
 elements.detailsToggleButton.addEventListener('click', () => {
   detailsHidden = !detailsHidden;
   renderDetailsToggle();
+  window.midnightFalls.setCollapsed(detailsHidden);
 });
 elements.quitButton.addEventListener('click', () => window.midnightFalls.quit());
 elements.roomCodeInput.addEventListener('keydown', (event) => {

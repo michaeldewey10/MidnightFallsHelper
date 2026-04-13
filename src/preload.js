@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('midnightFalls', {
   joinRoom: (roomCode) => ipcRenderer.invoke('app:join-room', roomCode),
   disconnect: () => ipcRenderer.invoke('app:disconnect'),
   toggleClickThrough: () => ipcRenderer.invoke('app:toggle-click-through'),
+  setCollapsed: (collapsed) => ipcRenderer.invoke('app:set-collapsed', collapsed),
   quit: () => ipcRenderer.invoke('app:quit'),
   onState: (callback) => {
     const listener = (_event, state) => callback(state);

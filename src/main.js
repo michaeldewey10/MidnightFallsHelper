@@ -5,6 +5,8 @@ const WebSocket = require('ws');
 
 const RELAY_URL = 'wss://midnightfallshelper.onrender.com';
 const MAX_SEQUENCE = 5;
+const EXPANDED_SIZE = { width: 560, height: 820 };
+const COLLAPSED_SIZE = { width: 420, height: 430 };
 const SYMBOLS = [
   { id: 't', label: 'T', name: 'T Rune', hotkey: 'CommandOrControl+Shift+1' },
   { id: 'x', label: 'X', name: 'X Rune', hotkey: 'CommandOrControl+Shift+2' },
@@ -51,8 +53,8 @@ function createWindow() {
   const { width } = primaryDisplay.workAreaSize;
 
   mainWindow = new BrowserWindow({
-    width: 560,
-    height: 820,
+    width: EXPANDED_SIZE.width,
+    height: EXPANDED_SIZE.height,
     x: Math.max(0, width - 600),
     y: 32,
     minWidth: 420,
@@ -407,6 +409,15 @@ function toggleClickThrough() {
   return rendererState();
 }
 
+function setCollapsedWindow(collapsed) {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    return;
+  }
+
+  const size = collapsed ? COLLAPSED_SIZE : EXPANDED_SIZE;
+  mainWindow.setSize(size.width, size.height, true);
+}
+
 function registerHotkeys() {
   const register = (accelerator, action) => {
     const ok = globalShortcut.register(accelerator, action);
@@ -467,4 +478,5 @@ ipcMain.handle('app:create-room', () => createRoom());
 ipcMain.handle('app:join-room', (_event, roomCode) => joinRoom(roomCode));
 ipcMain.handle('app:disconnect', () => disconnectSession());
 ipcMain.handle('app:toggle-click-through', () => toggleClickThrough());
+ipcMain.handle('app:set-collapsed', (_event, collapsed) => setCollapsedWindow(Boolean(collapsed)));
 ipcMain.handle('app:quit', () => app.quit());
