@@ -281,17 +281,6 @@ h1 {
   background: transparent;
 }
 
-.sequence-strip {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 50px;
-  padding: 8px 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.28);
-}
-
 .details-panel {
   display: grid;
   gap: 10px;
@@ -303,51 +292,6 @@ h1 {
 
 .hotkeys-panel[hidden] {
   display: none;
-}
-
-#sequenceCount {
-  flex: 0 0 auto;
-  width: 44px;
-  color: var(--cyan);
-  font-weight: 900;
-}
-
-.sequence-pills {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.sequence-pill {
-  min-width: 0;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  border-radius: 8px;
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.06);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.sequence-pill span:first-child {
-  color: var(--cyan);
-}
-
-.sequence-pill em {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-style: normal;
-}
-
-.sequence-pill.filled {
-  color: var(--text);
-  background: rgba(255, 255, 255, 0.12);
 }
 
 .controls {

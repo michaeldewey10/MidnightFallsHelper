@@ -11,8 +11,8 @@
                     "dev":  "electron . --dev",
                     "relay":  "node server/server.js",
                     "build":  "electron-builder",
-                    "build:win":  "set CSC_IDENTITY_AUTO_DISCOVERY=false\u0026\u0026 electron-builder --win nsis",
-                    "build:mac":  "electron-builder --mac dmg zip"
+                    "build:win":  "set CSC_IDENTITY_AUTO_DISCOVERY=false\u0026\u0026 electron-builder --win portable",
+                    "build:mac":  "electron-builder --mac zip"
                 },
     "dependencies":  {
                          "ws":  "^8.18.0"
@@ -37,7 +37,7 @@
                               "signDlls":  false,
                               "target":  [
                                              {
-                                                 "target":  "nsis",
+                                                 "target":  "portable",
                                                  "arch":  [
                                                               "x64",
                                                               "arm64"
@@ -45,16 +45,8 @@
                                              }
                                          ]
                           },
-                  "nsis":  {
-                               "oneClick":  true,
-                               "perMachine":  false,
-                               "allowToChangeInstallationDirectory":  false,
-                               "createDesktopShortcut":  true,
-                               "createStartMenuShortcut":  true
-                           },
                   "mac":  {
                               "target":  [
-                                             "dmg",
                                              "zip"
                                          ],
                               "category":  "public.app-category.utilities"

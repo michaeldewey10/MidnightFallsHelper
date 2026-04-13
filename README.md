@@ -18,15 +18,15 @@ npm install
 npm run start
 ```
 
-## Build Installers
+## Build Portable App
 
-Windows one-click installer:
+Windows portable build:
 
 ```bash
 npm run build:win
 ```
 
-macOS DMG and ZIP:
+macOS ZIP:
 
 ```bash
 npm run build:mac
