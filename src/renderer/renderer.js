@@ -21,7 +21,6 @@ const elements = {
   createRoomButton: document.getElementById('createRoomButton'),
   joinRoomButton: document.getElementById('joinRoomButton'),
   disconnectButton: document.getElementById('disconnectButton'),
-  relayUrlInput: document.getElementById('relayUrlInput'),
   roomCodeInput: document.getElementById('roomCodeInput'),
   roleBadge: document.getElementById('roleBadge'),
   statusText: document.getElementById('statusText'),
@@ -126,10 +125,6 @@ function renderSync() {
   elements.clickThroughButton.textContent = appState.clickThrough ? 'Pass' : 'Click';
   elements.clickThroughButton.title = appState.clickThrough ? 'Click-through is on. Use the hotkey to turn it off.' : 'Mouse input is enabled.';
 
-  if (appState.relayUrl && document.activeElement !== elements.relayUrlInput) {
-    elements.relayUrlInput.value = appState.relayUrl;
-  }
-
   if (appState.roomCode && document.activeElement !== elements.roomCodeInput) {
     elements.roomCodeInput.value = appState.roomCode;
   }
@@ -162,19 +157,14 @@ async function initialize() {
 
 elements.undoButton.addEventListener('click', () => window.midnightFalls.undo());
 elements.resetButton.addEventListener('click', () => window.midnightFalls.reset());
-elements.createRoomButton.addEventListener('click', () => window.midnightFalls.createRoom(elements.relayUrlInput.value));
-elements.joinRoomButton.addEventListener('click', () => window.midnightFalls.joinRoom(elements.relayUrlInput.value, elements.roomCodeInput.value));
+elements.createRoomButton.addEventListener('click', () => window.midnightFalls.createRoom());
+elements.joinRoomButton.addEventListener('click', () => window.midnightFalls.joinRoom(elements.roomCodeInput.value));
 elements.disconnectButton.addEventListener('click', () => window.midnightFalls.disconnect());
 elements.clickThroughButton.addEventListener('click', () => window.midnightFalls.toggleClickThrough());
 elements.quitButton.addEventListener('click', () => window.midnightFalls.quit());
-elements.relayUrlInput.addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    window.midnightFalls.joinRoom(elements.relayUrlInput.value, elements.roomCodeInput.value);
-  }
-});
 elements.roomCodeInput.addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
-    window.midnightFalls.joinRoom(elements.relayUrlInput.value, elements.roomCodeInput.value);
+    window.midnightFalls.joinRoom(elements.roomCodeInput.value);
   }
 });
 

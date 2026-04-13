@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const WebSocket = require('ws');
 
-const DEFAULT_RELAY_URL = 'ws://127.0.0.1:10000';
+const RELAY_URL = 'wss://midnightfallshelper.onrender.com';
 const MAX_SEQUENCE = 5;
 const SYMBOLS = [
   { id: 't', label: 'T', name: 'T Rune', hotkey: 'CommandOrControl+Shift+1' },
@@ -18,7 +18,7 @@ const defaultState = {
   sequence: [],
   revision: 0,
   connected: false,
-  relayUrl: DEFAULT_RELAY_URL,
+  relayUrl: RELAY_URL,
   roomCode: '',
   leaderToken: '',
   clients: 0,
@@ -82,7 +82,6 @@ function loadSettings() {
     const saved = JSON.parse(raw);
     state = {
       ...state,
-      relayUrl: typeof saved.relayUrl === 'string' ? saved.relayUrl : DEFAULT_RELAY_URL,
       roomCode: typeof saved.roomCode === 'string' ? saved.roomCode : '',
       clickThrough: Boolean(saved.clickThrough)
     };
@@ -97,7 +96,6 @@ function saveSettings() {
   }
 
   const payload = {
-    relayUrl: state.relayUrl,
     roomCode: state.roomCode,
     clickThrough: state.clickThrough
   };
@@ -209,32 +207,6 @@ function closeClient() {
   }
 }
 
-function normalizeRelayUrl(input) {
-  const trimmed = String(input || '').trim();
-
-  if (!trimmed) {
-    return DEFAULT_RELAY_URL;
-  }
-
-  if (/^https:\/\//i.test(trimmed)) {
-    return trimmed.replace(/^https:\/\//i, 'wss://');
-  }
-
-  if (/^http:\/\//i.test(trimmed)) {
-    return trimmed.replace(/^http:\/\//i, 'ws://');
-  }
-
-  if (/^wss?:\/\//i.test(trimmed)) {
-    return trimmed;
-  }
-
-  if (/^(localhost|127\.0\.0\.1)(:\d+)?/i.test(trimmed)) {
-    return `ws://${trimmed}`;
-  }
-
-  return `wss://${trimmed}`;
-}
-
 function sendRelay(message) {
   if (wsClient && wsClient.readyState === WebSocket.OPEN) {
     wsClient.send(JSON.stringify(message));
@@ -253,15 +225,13 @@ function applyRelayState(payload) {
   sendToRenderer();
 }
 
-function connectRelay(relayUrl, onOpen) {
+function connectRelay(onOpen) {
   closeClient();
-
-  const normalizedUrl = normalizeRelayUrl(relayUrl);
 
   state = {
     ...state,
     connected: false,
-    relayUrl: normalizedUrl,
+    relayUrl: RELAY_URL,
     clients: 0,
     error: ''
   };
@@ -270,7 +240,7 @@ function connectRelay(relayUrl, onOpen) {
 
   return new Promise((resolve) => {
     let settled = false;
-    const socket = new WebSocket(normalizedUrl);
+    const socket = new WebSocket(RELAY_URL);
     wsClient = socket;
 
     const finish = () => {
@@ -356,7 +326,7 @@ function connectRelay(relayUrl, onOpen) {
   });
 }
 
-function createRoom(relayUrl) {
+function createRoom() {
   state = {
     ...state,
     role: 'leader',
@@ -365,12 +335,12 @@ function createRoom(relayUrl) {
     clients: 0
   };
 
-  return connectRelay(relayUrl, () => {
+  return connectRelay(() => {
     sendRelay({ type: 'create-room' });
   });
 }
 
-function joinRoom(relayUrl, roomCode) {
+function joinRoom(roomCode) {
   const normalizedRoomCode = String(roomCode || '').trim().toUpperCase();
 
   if (!normalizedRoomCode) {
@@ -395,7 +365,7 @@ function joinRoom(relayUrl, roomCode) {
     clients: 0
   };
 
-  return connectRelay(relayUrl, () => {
+  return connectRelay(() => {
     sendRelay({
       type: 'join-room',
       payload: {
@@ -491,8 +461,8 @@ ipcMain.handle('app:undo', () => {
   undoSymbol();
   return rendererState();
 });
-ipcMain.handle('app:create-room', (_event, relayUrl) => createRoom(relayUrl));
-ipcMain.handle('app:join-room', (_event, relayUrl, roomCode) => joinRoom(relayUrl, roomCode));
+ipcMain.handle('app:create-room', () => createRoom());
+ipcMain.handle('app:join-room', (_event, roomCode) => joinRoom(roomCode));
 ipcMain.handle('app:disconnect', () => disconnectSession());
 ipcMain.handle('app:toggle-click-through', () => toggleClickThrough());
 ipcMain.handle('app:quit', () => app.quit());

@@ -39,12 +39,12 @@ Build output is written to `dist/`.
 1. Run World of Warcraft in Windowed or Borderless Windowed mode. Exclusive fullscreen usually prevents desktop overlays from appearing on top.
 2. Open Midnight Falls Helper.
 3. Start the relay with `npm run relay`, or deploy the `server/` folder to Render.
-4. The raid leader enters the relay URL, then clicks `Create Room`.
-5. Other players enter the same relay URL and the room code, then click `Join Room`.
+4. The raid leader clicks `Create Room`.
+5. Other players enter the room code, then click `Join Room`.
 6. The leader presses rune buttons or global hotkeys as the runes appear.
 7. Use `Reset` for the next Death's Dirge set or next pull.
 
-For local testing, the default relay URL is `ws://127.0.0.1:10000`. For Render, use the service URL with `wss://`, for example `wss://midnight-falls-relay.onrender.com`.
+The overlay uses `wss://midnightfallshelper.onrender.com` as its relay URL.
 
 ## Hotkeys
 
@@ -64,7 +64,7 @@ Click-through lets mouse input pass through the overlay to WoW. Use the click-th
 - Electron renders the transparent always-on-top overlay.
 - Electron global shortcuts keep leader input available while WoW is focused.
 - A separate WebSocket relay in `server/` manages room codes.
-- Everyone connects to the same relay URL and joins the same room.
+- Everyone connects to `wss://midnightfallshelper.onrender.com` and joins the same room.
 - Clients are read-only; only the leader or solo mode can change the order.
 - The app does not read WoW memory, combat logs, or UI state.
 
