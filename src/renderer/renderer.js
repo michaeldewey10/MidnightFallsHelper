@@ -14,6 +14,8 @@ let appState = {
 
 const elements = {
   arenaSlots: document.getElementById('arenaSlots'),
+  sequenceCount: document.getElementById('sequenceCount'),
+  sequencePills: document.getElementById('sequencePills'),
   symbolButtons: document.getElementById('symbolButtons'),
 
   resetButton: document.getElementById('resetButton'),
@@ -71,6 +73,21 @@ function renderArena() {
       : `<span class="slot-number">${index + 1}</span>`;
 
     elements.arenaSlots.appendChild(slot);
+  }
+}
+
+function renderSequence() {
+  elements.sequenceCount.textContent = `${appState.sequence.length} / ${appState.maxSequence}`;
+  elements.sequencePills.innerHTML = '';
+
+  for (let index = 0; index < appState.maxSequence; index += 1) {
+    const symbolId = appState.sequence[index];
+    const pill = document.createElement('div');
+    pill.className = `sequence-pill ${symbolId ? 'filled' : ''}`;
+    pill.innerHTML = symbolId
+      ? `<span>${index + 1}</span>${renderSymbolIcon(symbolId)}`
+      : `<span>${index + 1}</span><em>Waiting</em>`;
+    elements.sequencePills.appendChild(pill);
   }
 }
 
@@ -138,6 +155,7 @@ function renderDetailsToggle() {
 
 function render() {
   renderArena();
+  renderSequence();
   renderControls();
   renderSync();
   renderDetailsToggle();
