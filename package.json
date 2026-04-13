@@ -1,0 +1,61 @@
+{
+  "name": "midnight-falls-helper",
+  "version": "0.1.0",
+  "description": "Cross-platform Death's Dirge raid overlay for the Midnight Falls encounter.",
+  "main": "src/main.js",
+  "type": "commonjs",
+  "packageManager": "npm@10.8.2",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "relay": "node server/server.js",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win nsis",
+    "build:mac": "electron-builder --mac dmg zip"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.midnightfalls.helper",
+    "productName": "Midnight Falls Helper",
+    "asar": true,
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.utilities"
+    }
+  }
+}

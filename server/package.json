@@ -1,0 +1,16 @@
+{
+  "name": "midnight-falls-relay",
+  "version": "0.1.0",
+  "description": "WebSocket relay for Midnight Falls Helper room sync.",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.20.0"
+  }
+}

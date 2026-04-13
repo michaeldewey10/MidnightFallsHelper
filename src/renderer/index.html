@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';">
+    <title>Midnight Falls Helper</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="overlay-shell">
+      <header class="top-bar">
+        <div class="drag-zone">
+          <p class="eyebrow">Death's Dirge</p>
+          <h1>Midnight Falls Helper</h1>
+        </div>
+        <div class="window-actions">
+          <button id="clickThroughButton" class="ghost-button" type="button">Click</button>
+          <button id="quitButton" class="ghost-button" type="button">Exit</button>
+        </div>
+      </header>
+
+      <section class="arena-panel" aria-label="Death's Dirge order">
+        <div class="arena" id="arena">
+          <div class="tank-marker">
+            <span>Tank</span>
+          </div>
+          <div class="laser-arm" aria-hidden="true"></div>
+          <div class="boss-core" aria-hidden="true"></div>
+          <div id="arenaSlots" class="arena-slots"></div>
+          <div class="clockwise-label">Clockwise</div>
+        </div>
+      </section>
+
+      <section class="sequence-strip" aria-live="polite">
+        <span id="sequenceCount">0 / 5</span>
+        <div id="sequencePills" class="sequence-pills"></div>
+      </section>
+
+      <section class="controls" aria-label="Leader input controls">
+        <div id="symbolButtons" class="symbol-grid"></div>
+        <div class="edit-row">
+          <button id="undoButton" class="secondary-button" type="button">Undo</button>
+          <button id="resetButton" class="danger-button" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="sync-panel" aria-label="Sync controls">
+        <div class="sync-status">
+          <span id="roleBadge" class="role-badge">Solo</span>
+          <span id="statusText">Ready</span>
+        </div>
+        <p id="errorText" class="error-text"></p>
+        <div class="sync-actions">
+          <button id="createRoomButton" class="primary-button" type="button">Create Room</button>
+          <button id="disconnectButton" class="secondary-button" type="button">Disconnect</button>
+        </div>
+        <label class="join-label" for="relayUrlInput">Relay URL</label>
+        <div class="join-row">
+          <input id="relayUrlInput" type="text" autocomplete="off" spellcheck="false" placeholder="wss://midnight-falls-relay.onrender.com">
+        </div>
+        <label class="join-label" for="roomCodeInput">Room Code</label>
+        <div class="join-row">
+          <input id="roomCodeInput" type="text" autocomplete="off" spellcheck="false" maxlength="8" placeholder="ABCD">
+          <button id="joinRoomButton" class="primary-button" type="button">Join Room</button>
+        </div>
+        <p id="roomText" class="host-url"></p>
+      </section>
+
+      <footer class="hotkey-help">
+        <span>Runes: Ctrl/Cmd + Shift + 1-5</span>
+        <span>Reset: Ctrl/Cmd + Shift + R</span>
+        <span>Click-through: Ctrl/Cmd + Shift + Space</span>
+      </footer>
+    </main>
+    <script src="./renderer.js"></script>
+  </body>
+</html>
