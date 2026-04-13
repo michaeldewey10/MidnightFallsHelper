@@ -79,6 +79,14 @@ button:focus-visible {
   overflow: auto;
 }
 
+body.is-collapsed .overlay-shell {
+  gap: 6px;
+}
+
+body.is-collapsed .arena {
+  width: min(100%, 290px);
+}
+
 .top-bar {
   display: flex;
   align-items: center;
@@ -145,12 +153,12 @@ h1 {
 .arena-panel {
   display: grid;
   place-items: center;
-  min-height: 240px;
+  min-height: 0;
 }
 
 .arena {
   position: relative;
-  width: min(100%, 320px);
+  width: min(100%, 300px);
   aspect-ratio: 1;
   border: 2px solid #858585;
   border-radius: 50%;
@@ -451,7 +459,7 @@ kbd {
   }
 
   .arena-panel {
-    min-height: 220px;
+    min-height: 0;
   }
 
   .symbol-grid {

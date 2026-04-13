@@ -6,7 +6,7 @@ const WebSocket = require('ws');
 const RELAY_URL = 'wss://midnightfallshelper.onrender.com';
 const MAX_SEQUENCE = 5;
 const EXPANDED_SIZE = { width: 560, height: 820 };
-const COLLAPSED_SIZE = { width: 420, height: 430 };
+const COLLAPSED_SIZE = { width: 420, height: 390 };
 const SYMBOLS = [
   { id: 't', label: 'T', name: 'T Rune', hotkey: 'CommandOrControl+Shift+1' },
   { id: 'x', label: 'X', name: 'X Rune', hotkey: 'CommandOrControl+Shift+2' },

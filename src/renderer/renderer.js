@@ -142,6 +142,7 @@ function renderSync() {
 }
 
 function renderDetailsToggle() {
+  document.body.classList.toggle('is-collapsed', detailsHidden);
   elements.detailsPanel.hidden = detailsHidden;
   if (detailsHidden) {
     elements.hotkeysPanel.setAttribute('hidden', '');
